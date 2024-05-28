@@ -1,34 +1,12 @@
 import {Databases, Permission, Role, ID, Client} from 'appwrite';
 
-const data = {
-  title: 'Todo Title',
-  description: 'Todo Description',
-  quantity: 10,
-  price: 19.99,
-  completed: true,
-  tags: ['work', 'personal', 'important'],
-  details: {
-    name: 'John Doe',
-    age: 30,
-    address: {
-      city: 'New York',
-      country: 'USA',
-    },
-  },
-  createdAt: '2024-05-30T12:00:00Z',
-  updatedAt: '2024-05-30T14:30:00Z',
-  file: {
-    filename: 'image.jpg',
-    size: 1024,
-    mimeType: 'image/jpeg',
-  },
-};
-type post = {
+export type value = {
   title: string;
-  userId: string;
+  todo_descrtiption: string;
   status: boolean;
-  content: string;
+  email: string;
 };
+
 const appwriteClient = new Client();
 const APPWRITE_ENDPOINT: string = 'https://cloud.appwrite.io/v1';
 const APPWRITE_PROJECT_ID: string = '66518698000044cf0adf';
@@ -41,28 +19,36 @@ class dataBaseSerive {
       .setProject(APPWRITE_PROJECT_ID);
     this.database = new Databases(this.client);
   }
-  setDocument = async ({userId, title, content, status}: post) => {
+  setDocument = async ({email, title, todo_descrtiption, status}: value) => {
     try {
-      console.log('called');
+      console.log(email);
       const res = await this.database.createDocument(
-        '66531ab5003e23f516c5',
-        '66531e290034df7b5e08',
-        ID.unique(),
+        '66531ab5003e23f516c5', // Collection ID
+        '665606a0002784dbe1a4',
+        ID.unique(), // Unique document ID
         {
-            title,
-            userId,
-            content,
-            status
+          title,
+          todo_descrtiption,
+          status,
+          email,
         },
         [
           Permission.read(Role.any()), // Anyone can view this document
-          // Admins can delete this document
+          // Add other permissions if necessary, like:
+          // Permission.update(Role.user(userId)), // User can update
+          // Permission.delete(Role.admin()), // Admins can delete this document
         ],
       );
       console.log('Document created successfully:', res);
     } catch (error) {
       console.error('Error creating document:', error);
     }
+  };
+  getAll = async () => {
+    return await this.database.listDocuments(
+      '66531ab5003e23f516c5',
+      '665606a0002784dbe1a4',
+    );
   };
 }
 export default new dataBaseSerive();
