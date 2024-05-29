@@ -13,26 +13,47 @@ import {
   widthPrecent as wp,
 } from '../../../utils/responsive';
 
-import React, {useState} from 'react';
-import { value } from '../../../utils/appwrite/database';
+import React, {useEffect, useState} from 'react';
+import {value} from '../../../utils/appwrite/database';
+import {Document} from '../../../type';
 
 type props = {
   onPress: (value: value) => void;
   onClose: () => void;
   visible: boolean;
+  taksToUpdate: Document | boolean;
 };
-const TaskModal: React.FC<props> = ({onPress, onClose, visible}) => {
+const TaskModal: React.FC<props> = ({
+  onPress,
+  onClose,
+
+  visible,
+  taksToUpdate,
+}) => {
   const [inputs, setInputs] = useState({
     title: '',
     todo_descrtiption: '',
     status: true,
+    email: '',
   });
+  useEffect(() => {
+    if (typeof taksToUpdate == 'object') {
+      setInputs(prev => ({
+        ...prev,
+        title: taksToUpdate?.title ?? '',
+        status: taksToUpdate?.status ?? '',
+        todo_descrtiption: taksToUpdate?.todo_descrtiption ?? '',
+        email: taksToUpdate?.email ?? '',
+      }));
+    }
+  }, [taksToUpdate]);
   return (
     <Modal visible={visible} transparent>
       <View style={styles.container}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>New Task</Text>
           <TextInput
+            value={inputs.title}
             onChangeText={text => {
               setInputs(prev => ({...prev, title: text}));
             }}
@@ -47,6 +68,7 @@ const TaskModal: React.FC<props> = ({onPress, onClose, visible}) => {
             placeholderTextColor="#999"
             multiline={true}
             numberOfLines={6}
+            value={inputs.todo_descrtiption}
             onChangeText={text => {
               setInputs(prev => ({...prev, todo_descrtiption: text}));
             }}
@@ -60,10 +82,13 @@ const TaskModal: React.FC<props> = ({onPress, onClose, visible}) => {
               if (inputs.todo_descrtiption == '') {
                 ToastAndroid.show('Please Enter Description', 500);
               }
-              onPress(inputs);
+
+              onPress({...inputs, id: ''});
             }}
             style={[styles.btn, {backgroundColor: 'green'}]}>
-            <Text style={styles.btnTitle}>Create</Text>
+            <Text style={styles.btnTitle}>
+              {taksToUpdate == false ? 'Create' : 'Update'}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onClose} style={styles.btn}>
             <Text style={styles.btnTitle}>Cancle</Text>
@@ -97,7 +122,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '5%',
     paddingLeft: '5%',
     borderRadius: 8,
-    color:'black'
+    color: 'black',
   },
   textArea: {
     height: 120,

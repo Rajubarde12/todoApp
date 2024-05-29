@@ -1,7 +1,16 @@
 import {StackScreenProps} from '@react-navigation/stack';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {navigation_params} from '../../../navigation/Enums';
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Alert,
+  Clipboard,
+  FlatList,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../../redux/store';
 import database from '../../../utils/appwrite/database';
@@ -10,77 +19,28 @@ import {
   widthPrecent as wp,
 } from '../../../utils/responsive';
 import TaskModal from './InputModal';
+import {Document, taskDocument} from '../../../type';
+import Teams from '../../../utils/appwrite/Teams';
 
 type props = StackScreenProps<navigation_params, 'HOME_SCREEN'>;
-const tasks = [
-  {
-    title: 'Task 1',
-    description:
-      'This is the first task description, which is intended to be exactly twenty words long for the purpose of this example.',
-    status: true,
-  },
-  {
-    title: 'Task 2',
-    description:
-      'The second task description also needs to contain exactly twenty words, ensuring it meets the specified requirements.',
-    status: true,
-  },
-  {
-    title: 'Task 3',
-    description:
-      'For the third task, the description must be exactly twenty words to fulfill the given constraints correctly.',
-    status: true,
-  },
-  {
-    title: 'Task 4',
-    description:
-      'In the fourth task, we have another description that is crafted to be exactly twenty words in length here.',
-    status: true,
-  },
-  {
-    title: 'Task 5',
-    description:
-      'This fifth task description will also contain exactly twenty words, meeting the specified word count requirement.',
-    status: true,
-  },
-  {
-    title: 'Task 6',
-    description:
-      'For the sixth task, ensure that the description has exactly twenty words to comply with the given constraints.',
-    status: true,
-  },
-  {
-    title: 'Task 7',
-    description:
-      'Seventh task description is designed to be exactly twenty words, just like all the other task descriptions here.',
-    status: true,
-  },
-  {
-    title: 'Task 8',
-    description:
-      'Eighth task description, ensuring it has precisely twenty words as required by the constraints given initially.',
-    status: true,
-  },
-  {
-    title: 'Task 9',
-    description:
-      'Ninth task description should also be exactly twenty words to meet the necessary criteria for the task list.',
-    status: true,
-  },
-  {
-    title: 'Task 10',
-    description:
-      'Finally, the tenth task description is exactly twenty words, completing our list of tasks as required.',
-    status: true,
-  },
-];
 
-// Example usage
+
 
 const Home: React.FC<props> = () => {
   const {user} = useSelector((state: RootState) => state.data);
   const [visible, setVisible] = useState(false);
-
+  const [todoTaks, setTodoTaks] = useState<Document[]>([]);
+  const getAllTasks = async () => {
+    const tasks: taskDocument =
+      (await database.getAll()) ?? ({} as taskDocument);
+    if (tasks) {
+      setTodoTaks(tasks.documents);
+    }
+  };
+  useEffect(() => {
+    getAllTasks();
+  }, []);
+  const [visibleIndex, setVisibleIndex] = useState(-1);
   return (
     <View style={{flex: 1}}>
       <TaskModal
@@ -89,9 +49,20 @@ const Home: React.FC<props> = () => {
         }}
         visible={visible}
         onPress={async value => {
-          // database.setDocument({...value, email: user?.email!});
-          console.log(await database.getAll());
+          const {status, id, title, todo_descrtiption} = value;
+          if (user?.email) {
+            const data: taskDocument = await database.setDocument({
+              email: user?.email,
+              status,
+              todo_descrtiption,
+              title,
+              id,
+            });
+            setTodoTaks(data.documents);
+            setVisible(false);
+          }
         }}
+        taksToUpdate={false}
       />
       <View
         style={{
@@ -143,16 +114,31 @@ const Home: React.FC<props> = () => {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={tasks}
+        data={todoTaks}
         contentContainerStyle={{paddingTop: '5%', paddingBottom: '5%'}}
         renderItem={({item, index}) => {
           return (
             <View style={styles.itemContainer}>
+              <TaskModal
+                onClose={() => {
+                  setVisibleIndex(-1);
+                }}
+                visible={visibleIndex == index}
+                onPress={async val => {
+                  const data: taskDocument = await database.updateTask({
+                    ...val,
+                    id: item.$id,
+                  });
+                  setTodoTaks(data.documents);
+                  setVisibleIndex(-1);
+                }}
+                taksToUpdate={item}
+              />
               <Text
                 style={{color: 'black', fontSize: wp(4.5), fontWeight: '700'}}>
                 {item.title}
               </Text>
-              <Text style={{color: '#191919'}}>{item.description}</Text>
+              <Text style={{color: '#191919',marginVertical:10}}>{item.todo_descrtiption}</Text>
               <View
                 style={{
                   flexDirection: 'row',
@@ -161,10 +147,20 @@ const Home: React.FC<props> = () => {
                   marginHorizontal: '10%',
                 }}>
                 <TouchableOpacity
+                onPress={async()=>{
+                const data:taskDocument=  await database.deleteTask(item.$id)
+                ToastAndroid.show('Task delete successfully', 500);
+                setTodoTaks(data.documents)
+              //  await Teams.inviteIntoTeam()
+                }}
                   style={[styles.btn, {backgroundColor: 'red'}]}>
                   <Text style={styles.btnTitle}>Delete</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.btn}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setVisibleIndex(index);
+                  }}
+                  style={styles.btn}>
                   <Text style={styles.btnTitle}>Update</Text>
                 </TouchableOpacity>
               </View>

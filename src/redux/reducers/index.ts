@@ -9,6 +9,7 @@ type InitialState = {
   user: User | null;
   loading: boolean;
   error: string | null;
+  todoTask: any;
 };
 
 const initialState: InitialState = {
@@ -19,6 +20,7 @@ const initialState: InitialState = {
   user: null,
   loading: false,
   error: null,
+  todoTask: [],
 };
 
 const todoSlice = createSlice({
@@ -48,6 +50,15 @@ const todoSlice = createSlice({
       ...state,
       user: action.payload,
     }),
+    todoTaskRequest: (state, action) => {
+      return {...state, loading: true};
+    },
+    todoTaskSuccess: (state, action) => {
+      return {...state, loading: false, todoTask: action.payload};
+    },
+    todoTaskError: (state, action) => {
+      return {...state, loading: false, error: action.payload};
+    },
   },
 });
 

@@ -76,3 +76,19 @@ export type User={
      */
     accessedAt: string;
 };
+export type taskDocument ={
+    total: number;
+    documents: Document[];
+  }
+ export type Document= {
+    title: string;
+    todo_descrtiption: string;
+    status: boolean;
+    email: string;
+    '$id': string;
+    '$createdAt': string;
+    '$updatedAt': string;
+    '$permissions': string[];
+    '$databaseId': string;
+    '$collectionId': string;
+  }
