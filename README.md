@@ -34,10 +34,8 @@ Or using yarn:
 yarn install
 Setup Environment Variables
 Create a .env file in the root of your project and add necessary environment variables. Example:
-
-env
-Copy code
 API_ENDPOINT=https://api.yourapp.com
+
 APPWRITE_PROJECT_ID=your_project_id
 APPWRITE_API_KEY=your_api_key
 Running the Application
@@ -79,12 +77,10 @@ yarn lint
 Running Tests
 To run the tests, use:
 
-
+npm
 npm test
 Or
-
 sh
-Copy code
 yarn test
 Key Dependencies
 React Native: Framework for building native apps using React.
