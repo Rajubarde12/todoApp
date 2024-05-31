@@ -6,7 +6,7 @@ type props={
 const Background: React.FC<props> = ({children}) => {
   return (
     <View
-      style={{flex: 1,backgroundColor:'#191919'}} >
+      style={{flex: 1}} >
       {/* // source={require('../../assets/background2.jpg')} */}
       {children}
     </View>

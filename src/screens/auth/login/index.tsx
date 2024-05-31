@@ -71,10 +71,10 @@ const Login: React.FC<props> = ({navigation}) => {
               marginRight: '8%',
               marginTop: '2%',
               fontSize: wp(4.5),
-              color: 'grey',
+              color: '#191919',
             }}>
             Dont have account?
-            <Text style={{fontWeight: 'bold', color: '#fff'}}> Sing up</Text>
+            <Text style={{fontWeight: 'bold', color: 'grey'}}> Sing up</Text>
           </Text>
 
           <Button onPress={Login} title="Login" />
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: wp(9),
-    color: '#fff',
+    color: '#191919',
     // fontFamily: fonts.Oswald_SemiBold,
     width: '50%',
     textAlign: 'center',

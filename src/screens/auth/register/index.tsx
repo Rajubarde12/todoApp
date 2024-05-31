@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: wp(7),
-    color: '#fff',
+    color: '#191919',
     // fontFamily: fonts.Oswald_Bold,
     width: '50%',
     textAlign: 'center',

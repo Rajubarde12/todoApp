@@ -16,12 +16,13 @@ class TeamsServie {
   }
   inviteIntoTeam = async () => {
     try {
-      const data = await this.team.create(ID.unique(), 'todoTeam', [
-        'create',
-        'Update',
-        'delete',
-      ]);
-      console.log(data);
+      // const data = await this.team.create(ID.unique(), 'todoTeam', [
+      //   'create',
+      //   'Update',
+      //   'delete',
+      // ]);
+    this.team.createMembership("6657fbda0026cadf8a4d",["create,update,delete"],"rajubarde54@gmail.com")
+    
     } catch (err) {
       console.log('error with team creation', err);
     }

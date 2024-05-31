@@ -20,13 +20,13 @@ import {
 } from '../../../utils/responsive';
 import TaskModal from './InputModal';
 import {Document, taskDocument} from '../../../type';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import appwrite from '../../../utils/appwrite/Auth';
 import Teams from '../../../utils/appwrite/Teams';
 
 type props = StackScreenProps<navigation_params, 'HOME_SCREEN'>;
 
-
-
-const Home: React.FC<props> = () => {
+const Home: React.FC<props> = ({navigation}) => {
   const {user} = useSelector((state: RootState) => state.data);
   const [visible, setVisible] = useState(false);
   const [todoTaks, setTodoTaks] = useState<Document[]>([]);
@@ -41,6 +41,27 @@ const Home: React.FC<props> = () => {
     getAllTasks();
   }, []);
   const [visibleIndex, setVisibleIndex] = useState(-1);
+  const confirmLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Logout cancelled'),
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: async () => {
+            await appwrite.logoutuser();
+            navigation.reset({index: 0, routes: [{name: 'LOGIN_SCREEN'}]});
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
   return (
     <View style={{flex: 1}}>
       <TaskModal
@@ -76,6 +97,19 @@ const Home: React.FC<props> = () => {
           justifyContent: 'center',
           marginTop: '2%',
         }}>
+        <AntDesign
+          onPress={async () => {
+            confirmLogout();
+          }}
+          name="logout"
+          style={{
+            position: 'absolute',
+            fontSize: wp(6),
+            color: 'grey',
+            right: '5%',
+            top: '15%',
+          }}
+        />
         <Text
           style={{
             color: '#191919',
@@ -108,6 +142,7 @@ const Home: React.FC<props> = () => {
         <TouchableOpacity
           onPress={() => {
             setVisible(true);
+            // Teams.inviteIntoTeam()
           }}
           style={styles.addBtn}>
           <Text>Add New task</Text>
@@ -138,7 +173,9 @@ const Home: React.FC<props> = () => {
                 style={{color: 'black', fontSize: wp(4.5), fontWeight: '700'}}>
                 {item.title}
               </Text>
-              <Text style={{color: '#191919',marginVertical:10}}>{item.todo_descrtiption}</Text>
+              <Text style={{color: '#191919', marginVertical: 10}}>
+                {item.todo_descrtiption}
+              </Text>
               <View
                 style={{
                   flexDirection: 'row',
@@ -147,12 +184,14 @@ const Home: React.FC<props> = () => {
                   marginHorizontal: '10%',
                 }}>
                 <TouchableOpacity
-                onPress={async()=>{
-                const data:taskDocument=  await database.deleteTask(item.$id)
-                ToastAndroid.show('Task delete successfully', 500);
-                setTodoTaks(data.documents)
-              //  await Teams.inviteIntoTeam()
-                }}
+                  onPress={async () => {
+                    const data: taskDocument = await database.deleteTask(
+                      item.$id,
+                    );
+                    ToastAndroid.show('Task delete successfully', 500);
+                    setTodoTaks(data.documents);
+                    //  await Teams.inviteIntoTeam()
+                  }}
                   style={[styles.btn, {backgroundColor: 'red'}]}>
                   <Text style={styles.btnTitle}>Delete</Text>
                 </TouchableOpacity>

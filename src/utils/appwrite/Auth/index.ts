@@ -71,7 +71,7 @@ class AppWriteService {
     try {
       return await this.account.createEmailPasswordSession(email, password);
     } catch (error) {
-      ToastAndroid.show(String(error), 5000);
+      ToastAndroid.show("Invalid email or password", 5000);
       console.log('Appwrite login user Error::', error);
     }
   };
@@ -86,6 +86,7 @@ class AppWriteService {
   logoutuser = async () => {
     try {
       return await this.account.deleteSession('current');
+      
     } catch (error) {
       ToastAndroid.show(String(error), 5000);
       console.log('logout current user Error::', error);

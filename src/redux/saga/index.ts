@@ -16,12 +16,17 @@ function* doLogin(action: SetUserAction) {
     if (user) {
       yield put({type: 'todo/loginSuccess', payload: user});
       ToastAndroid.show('Login Success', ToastAndroid.SHORT);
+      const userdata: User = yield appwrite.getCurrentUser();
+      yield put({
+        type: 'todo/setUser',
+        payload: user,
+      });
       action.navigation.navigate('HOME_SCREEN');
     } else {
       yield put({
         type: 'todo/loginError',
       });
-      ToastAndroid.show('Login Failed', ToastAndroid.SHORT);
+      // ToastAndroid.show('Login Failed', ToastAndroid.SHORT);
     }
   } catch (error) {
     yield put({
@@ -29,7 +34,6 @@ function* doLogin(action: SetUserAction) {
     });
   }
 }
-
 export function* mySaga(): Generator<StrictEffect, void, unknown> {
   yield takeEvery('todo/login_request', doLogin);
 }
